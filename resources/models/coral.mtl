@@ -12,5 +12,5 @@ newmtl 10010_Coral_v1
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka resources/textures/coral.jpg
-	map_Kd resources/textures/coral.jpg
+	map_Ka coral.jpg
+	map_Kd coral.jpg
