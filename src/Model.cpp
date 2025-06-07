@@ -59,46 +59,59 @@ void Model::setupMesh() {
 }
 
 void Model::loadModel(const char* path) {
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    std::cout << "Loading model: " << path << std::endl;
     
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(path, 
+        aiProcess_Triangulate | aiProcess_FlipUVs);
+    
+    // Add extensive error checking
+    if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
         return;
     }
     
-    // Process materials
-    if (scene->mMaterials) {
-        aiMaterial* material = scene->mMaterials[1];
-        std::vector<Texture> diffuseMaps;
-        
-        aiString str;
-        material->GetTexture(aiTextureType_DIFFUSE, 0, &str);
-        Texture texture(str.C_Str(), "texture_diffuse");
-        textures.push_back(texture);
+    if(scene->mNumMeshes == 0) {
+        std::cerr << "ERROR: Model contains no meshes" << std::endl;
+        return;
     }
     
-    // Process meshes
     aiMesh* mesh = scene->mMeshes[0];
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+    if(!mesh) {
+        std::cerr << "ERROR: First mesh is null" << std::endl;
+        return;
+    }
+
+    // Add vertex data with null checks
+    if(!mesh->mVertices) {
+        std::cerr << "ERROR: Mesh has no vertices" << std::endl;
+        return;
+    }
+    
+    // Process vertices (with bounds checking)
+    for(unsigned int i = 0; i < mesh->mNumVertices; i++) {
         Vertex vertex;
         
-        // Positions
-        vertex.Position = glm::vec3(
-            mesh->mVertices[i].x,
-            mesh->mVertices[i].y,
-            mesh->mVertices[i].z
-        );
+        // Position
+        if(mesh->mVertices) {
+            vertex.Position = glm::vec3(
+                mesh->mVertices[i].x,
+                mesh->mVertices[i].y,
+                mesh->mVertices[i].z
+            );
+        }
         
-        // Normals
-        vertex.Normal = glm::vec3(
-            mesh->mNormals[i].x,
-            mesh->mNormals[i].y,
-            mesh->mNormals[i].z
-        );
+        // Normals (check if they exist)
+        if(mesh->mNormals) {
+            vertex.Normal = glm::vec3(
+                mesh->mNormals[i].x,
+                mesh->mNormals[i].y,
+                mesh->mNormals[i].z
+            );
+        }
         
-        // Texture coordinates
-        if (mesh->mTextureCoords[0]) {
+        // Texture coordinates (check if they exist)
+        if(mesh->mTextureCoords[0]) {
             vertex.TexCoords = glm::vec2(
                 mesh->mTextureCoords[0][i].x,
                 mesh->mTextureCoords[0][i].y
@@ -110,10 +123,32 @@ void Model::loadModel(const char* path) {
         vertices.push_back(vertex);
     }
     
-    // Process indices
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-        aiFace face = mesh->mFaces[i];
-        for (unsigned int j = 0; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
+    // Process indices with safety check
+    if(mesh->mNumFaces == 0) {
+        std::cerr << "WARNING: Mesh has no faces" << std::endl;
+    } else {
+        for(unsigned int i = 0; i < mesh->mNumFaces; i++) {
+            aiFace face = mesh->mFaces[i];
+            for(unsigned int j = 0; j < face.mNumIndices; j++) {
+                indices.push_back(face.mIndices[j]);
+            }
+        }
     }
+    
+    // Process materials with safety checks
+    if(scene->mNumMaterials > 0) {
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        if(material) {
+            aiString str;
+            if(material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+                if(material->GetTexture(aiTextureType_DIFFUSE, 0, &str) == AI_SUCCESS) {
+                    std::string texturePath = "resources/textures/" + std::string(str.C_Str());
+                    std::cout << "Loading texture: " << texturePath << std::endl;
+                    textures.push_back(Texture(texturePath.c_str(), "texture_diffuse"));
+                }
+            }
+        }
+    }
+    
+    setupMesh();
 }
