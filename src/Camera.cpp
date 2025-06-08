@@ -1,4 +1,7 @@
 #include "Camera.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/constants.hpp>
+#include <cmath>
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) 
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(2.5f), MouseSensitivity(0.01f), Zoom(35.0f) {
@@ -26,11 +29,15 @@ void Camera::ProcessKeyboard(int direction, float deltaTime) {
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch) {
-    xoffset *= MouseSensitivity;
-    yoffset *= MouseSensitivity;
+    // Apply smoothing: interpolate from previous smoothed value toward the new offset.
+    smoothedXOffset += smoothingFactor * (xoffset - smoothedXOffset);
+    smoothedYOffset += smoothingFactor * (yoffset - smoothedYOffset);
+
+    float adjustedX = smoothedXOffset * MouseSensitivity;
+    float adjustedY = smoothedYOffset * MouseSensitivity;
     
-    Yaw += xoffset;
-    Pitch += yoffset;
+    Yaw += adjustedX;
+    Pitch += adjustedY;
     
     if (constrainPitch) {
         if (Pitch > 89.0f)

@@ -138,14 +138,15 @@ int main() {
         
         // Draw static objects
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-1.0f, -1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.5f));
+        model = glm::translate(model, glm::vec3(-1.0f, -0.5f, 0.0f)); // coral is now higher
+        model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+        model = glm::scale(model, glm::vec3(0.05f));
         shader.setMat4("model", model);
         coral.Draw(shader);
         
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(1.0f, -1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.3f));
+        model = glm::scale(model, glm::vec3(1.0f));
         shader.setMat4("model", model);
         rock.Draw(shader);
         
