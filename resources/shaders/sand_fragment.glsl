@@ -1,7 +1,10 @@
 #version 330 core
 out vec4 FragColor;
 
+in vec2 TexCoord;
+
+uniform sampler2D sandTexture;
+
 void main() {
-    // Simple sand-like color
-    FragColor = vec4(0.9, 0.8, 0.6, 1.0); // Light beige color
+    FragColor = texture(sandTexture, TexCoord);
 }

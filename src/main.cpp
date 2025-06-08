@@ -14,6 +14,8 @@
 #include <iostream>
 #include <vector>
 
+#include <stb_image.h>
+
 // Settings
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
@@ -100,6 +102,25 @@ int main() {
     glm::vec3 tankMin(-4.0f, -1.0f, -4.0f);
     glm::vec3 tankMax(4.0f, 10.0f, 4.0f);
     
+    unsigned int sandTexture;
+    glGenTextures(1, &sandTexture);
+    glBindTexture(GL_TEXTURE_2D, sandTexture);
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Load image
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("resources/textures/sand.jpg", &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load sand texture" << std::endl;
+    }
+    stbi_image_free(data);
+
     // Render loop
     while (!glfwWindowShouldClose(window)) {
         // Per-frame time logic
@@ -333,6 +354,11 @@ int main() {
         glm::mat4 sandModel = glm::mat4(1.0f);
         sandModel = glm::translate(sandModel, glm::vec3(0.0f, 0.5f, 0.0f)); // Position at the bottom
         sandShader.setMat4("model", sandModel);
+
+        // Bind sand texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, sandTexture);
+        sandShader.setInt("sandTexture", 0);
 
         glBindVertexArray(sandVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
