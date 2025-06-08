@@ -19,7 +19,7 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
 // Camera
-Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+Camera camera(glm::vec3(0.0f, 3.0f, 10.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -74,24 +74,27 @@ int main() {
     
     // Load models
     std::vector<Fish> fishes;
-    fishes.emplace_back("resources/models/fish.obj", glm::vec3(1.0f, 0.5f, 1.0f), glm::vec3(0.5f, 0.0f, 0.5f), 0.5f);
-    fishes.emplace_back("resources/models/fish.obj", glm::vec3(-1.0f, 0.3f, -1.0f), glm::vec3(-0.3f, 0.1f, -0.2f), 0.3f);
-    fishes.emplace_back("resources/models/fish.obj", glm::vec3(0.0f, 0.7f, 0.0f), glm::vec3(0.2f, -0.1f, 0.4f), 0.4f);
-    
+    fishes.emplace_back("resources/models/fish.obj", glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(0.5f, 0.0f, 0.5f), 0.5f);
+    fishes.emplace_back("resources/models/fish.obj", glm::vec3(-1.0f, 3.2f, -1.0f), glm::vec3(-0.3f, 0.1f, -0.2f), 0.3f);
+    fishes.emplace_back("resources/models/fish.obj", glm::vec3(0.0f, 3.5f, 0.0f), glm::vec3(0.2f, -0.1f, 0.4f), 0.4f);
+
     std::vector<Plant> plants;
-    plants.emplace_back("resources/models/plant.obj", glm::vec3(-1.5f, -1.0f, -1.5f));
-    plants.emplace_back("resources/models/plant.obj", glm::vec3(1.5f, -1.0f, -1.5f));
-    plants.emplace_back("resources/models/plant.obj", glm::vec3(-1.5f, -1.0f, 1.5f));
-    plants.emplace_back("resources/models/plant.obj", glm::vec3(1.5f, -1.0f, 1.5f));
-    
+    // Shift plant positions further away from coral.
+    // Coral is drawn at (-1.0f, -0.5f, 0.0f) so we can move plants farther out.
+    // Make sure the new positions still lie within your tank boundaries.
+    plants.emplace_back("resources/models/plant.obj", glm::vec3(-1.5f, -1.0f, -2.0f));
+    plants.emplace_back("resources/models/plant.obj", glm::vec3(1.5f, -1.0f, -2.0f));
+    plants.emplace_back("resources/models/plant.obj", glm::vec3(-1.5f, -1.0f, 2.0f));
+    plants.emplace_back("resources/models/plant.obj", glm::vec3(1.5f, -1.0f, 2.0f));
+        
     Model coral("resources/models/coral.obj");
     Model rock("resources/models/rock.obj");
     
     Water water(10.0f);
     
     // Tank boundaries
-    glm::vec3 tankMin(-2.0f, -1.0f, -2.0f);
-    glm::vec3 tankMax(2.0f, 1.0f, 2.0f);
+    glm::vec3 tankMin(-4.0f, -1.0f, -4.0f);
+    glm::vec3 tankMax(4.0f, 10.0f, 4.0f);
     
     // Render loop
     while (!glfwWindowShouldClose(window)) {
@@ -135,6 +138,21 @@ int main() {
             plant.Update(deltaTime);
             plant.Draw(shader);
         }
+
+                // After updating each fish’s position:
+        float fishCollisionRadius = 0.3f; // Adjust based on fish size
+        for (size_t i = 0; i < fishes.size(); i++) {
+            for (size_t j = i + 1; j < fishes.size(); j++) {
+                glm::vec3 diff = fishes[i].GetPosition() - fishes[j].GetPosition();
+                float distance = glm::length(diff);
+                if(distance < fishCollisionRadius && distance > 0.0f) {
+                    glm::vec3 separation = glm::normalize(diff);
+                    // Adjust each fish's direction slightly away from the other
+                    fishes[i].SetDirection(fishes[i].GetDirection() + separation * 0.1f);
+                    fishes[j].SetDirection(fishes[j].GetDirection() - separation * 0.1f);
+                }
+            }
+        }
         
         // Draw static objects
         glm::mat4 model = glm::mat4(1.0f);
@@ -146,7 +164,7 @@ int main() {
         
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(1.0f, -1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.0f));
+        model = glm::scale(model, glm::vec3(3.0f));
         shader.setMat4("model", model);
         rock.Draw(shader);
         

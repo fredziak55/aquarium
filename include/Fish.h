@@ -12,6 +12,10 @@ public:
     float speed;
     float rotationAngle;
     
+    glm::vec3 GetPosition() const { return position; }
+    glm::vec3 GetDirection() const { return direction; }
+    void SetDirection(const glm::vec3& newDir) { direction = glm::normalize(newDir); }
+
     Fish(const char* modelPath, glm::vec3 startPos, glm::vec3 startDir, float speed);
     void Update(float deltaTime, const glm::vec3& tankMin, const glm::vec3& tankMax);
     void Draw(Shader &shader);
