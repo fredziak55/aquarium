@@ -121,6 +121,26 @@ int main() {
     }
     stbi_image_free(data);
 
+    unsigned int waterTexture;
+    glGenTextures(1, &waterTexture);
+    glBindTexture(GL_TEXTURE_2D, waterTexture);
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Load image
+    int wWidth, wHeight, wChannels;
+    unsigned char *wData = stbi_load("resources/textures/water.png", &wWidth, &wHeight, &wChannels, 0);
+    if (wData) {
+        GLenum format = (wChannels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, wWidth, wHeight, 0, format, GL_UNSIGNED_BYTE, wData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load water texture" << std::endl;
+    }
+    stbi_image_free(wData);
+
     // Render loop
     while (!glfwWindowShouldClose(window)) {
         // Per-frame time logic
@@ -224,6 +244,9 @@ int main() {
         // Define full-screen quad vertices in NDC and their UV coordinates
                 // Draw water surface in background
         waterShader.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, waterTexture);
+        waterShader.setInt("waterTexture", 0);
         waterShader.setMat4("projection", projection);
         waterShader.setMat4("view", view);
         waterShader.setVec3("cameraPos", camera.Position);

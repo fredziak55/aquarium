@@ -5,22 +5,30 @@ in vec2 TexCoords;
 
 uniform float time;
 uniform vec3 cameraPos;
+uniform sampler2D waterTexture;
 
 void main() {
-    // Create vertical wave movement (like flowing water)
-    float wave = sin(TexCoords.y * 10.0 + time * 2.0) * 0.1;
-    
-    // Ocean-like color with depth variation
-    vec3 waterColor = mix(
-        vec3(0.1, 0.2, 0.4),  // Darker blue at the bottom
-        vec3(0.2, 0.5, 0.8),  // Lighter blue at the top
-        TexCoords.y            // Gradient from bottom to top
+    // Smoother movement: lower frequency and amplitude
+    vec2 movingTexCoords = TexCoords + vec2(
+        sin(time * 0.3) * 0.015,
+        cos(time * 0.2 + TexCoords.x * 2.0) * 0.015
     );
-    
-    // Add subtle horizontal ripples
-    float ripple = sin(TexCoords.x * 20.0 + time * 3.0) * 0.05;
-    waterColor += ripple * 0.2;
-    
-    // Make it slightly transparent for a "watery" look
-    FragColor = vec4(waterColor, 0.85);
+
+    // Smoother procedural color
+    float wave = sin(TexCoords.y * 4.0 + time * 1.2) * 0.05;
+    vec3 waterColor = mix(
+        vec3(0.12, 0.22, 0.38),
+        vec3(0.18, 0.45, 0.7),
+        TexCoords.y + wave
+    );
+    float ripple = sin(TexCoords.x * 8.0 + time * 1.5) * 0.02;
+    waterColor += ripple * 0.15;
+
+    // Sample texture with moving coordinates
+    vec4 texColor = texture(waterTexture, movingTexCoords);
+
+    // Blend procedural and texture color (more texture, less harsh)
+    vec3 finalColor = mix(waterColor, texColor.rgb, 0.6);
+
+    FragColor = vec4(finalColor, 0.85);
 }
