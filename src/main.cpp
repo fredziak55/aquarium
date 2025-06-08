@@ -173,11 +173,11 @@ int main() {
         shader.setMat4("model", model);
         coral.Draw(shader);
         
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(1.0f, -1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(3.0f));
-        shader.setMat4("model", model);
-        rock.Draw(shader);
+        // model = glm::mat4(1.0f);
+        // model = glm::translate(model, glm::vec3(1.0f, -1.0f, 0.0f));
+        // model = glm::scale(model, glm::vec3(100.0f));
+        // shader.setMat4("model", model);
+        // rock.Draw(shader);
         
         // Draw water surface
         waterShader.use();
