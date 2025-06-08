@@ -1,4 +1,0 @@
-/home/fredziak/SemestrIV/aquarium/build/CMakeFiles/glad.dir
-/home/fredziak/SemestrIV/aquarium/build/CMakeFiles/AquariumProject.dir
-/home/fredziak/SemestrIV/aquarium/build/CMakeFiles/edit_cache.dir
-/home/fredziak/SemestrIV/aquarium/build/CMakeFiles/rebuild_cache.dir
