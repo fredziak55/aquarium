@@ -72,6 +72,7 @@ int main() {
     Shader shader("resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl");
     Shader waterShader("resources/shaders/water_vertex.glsl", "resources/shaders/water_fragment.glsl");
     Shader lightShader("resources/shaders/light_vertex.glsl", "resources/shaders/light_fragment.glsl");
+    Shader sandShader("resources/shaders/sand_vertex.glsl", "resources/shaders/sand_fragment.glsl");
     
     // Load models
     std::vector<Fish> fishes;
@@ -239,6 +240,37 @@ int main() {
         glDeleteBuffers(1, &waterVBO);
         glDeleteBuffers(1, &waterEBO);
 
+        float sandVertices[] = {
+            // positions          // texture coords
+            -6.0f, -1.0f, -6.0f,   0.0f, 0.0f,  // Bottom-left corner
+            6.0f, -1.0f, -6.0f,   1.0f, 0.0f,  // Bottom-right corner
+            6.0f, -1.0f,  6.0f,   1.0f, 1.0f,  // Top-right corner
+            -6.0f, -1.0f,  6.0f,   0.0f, 1.0f   // Top-left corner
+        };
+        unsigned int sandIndices[] = {
+            0, 1, 2,
+            2, 3, 0
+        };
+
+        // Set up VAO/VBO/EBO for the sand quad
+        unsigned int sandVAO, sandVBO, sandEBO;
+        glGenVertexArrays(1, &sandVAO);
+        glGenBuffers(1, &sandVBO);
+        glGenBuffers(1, &sandEBO);
+
+        glBindVertexArray(sandVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, sandVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(sandVertices), sandVertices, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sandEBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sandIndices), sandIndices, GL_STATIC_DRAW);
+
+        // Position attribute
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        // Texture coord attribute (not used but defined for future use)
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
           //light cube vertices and indices
         // These vertices define a small cube that will represent the light source in the scene.
         float lightVertices[] = {
@@ -274,6 +306,18 @@ int main() {
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
+
+        sandShader.use();
+        sandShader.setMat4("projection", projection);
+        sandShader.setMat4("view", view);
+
+        glm::mat4 sandModel = glm::mat4(1.0f);
+        sandModel = glm::translate(sandModel, glm::vec3(0.0f, 0.5f, 0.0f)); // Position at the bottom
+        sandShader.setMat4("model", sandModel);
+
+        glBindVertexArray(sandVAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         lightShader.use();
         lightShader.setMat4("projection", projection);
