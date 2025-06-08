@@ -71,6 +71,7 @@ int main() {
     // Build and compile shaders
     Shader shader("resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl");
     Shader waterShader("resources/shaders/water_vertex.glsl", "resources/shaders/water_fragment.glsl");
+    Shader lightShader("resources/shaders/light_vertex.glsl", "resources/shaders/light_fragment.glsl");
     
     // Load models
     std::vector<Fish> fishes;
@@ -153,7 +154,7 @@ int main() {
                 }
             }
         }
-        
+
         // Draw static objects
         // glm::mat4 model = glm::mat4(1.0f);
         // model = glm::translate(model, glm::vec3(-1.0f, -0.5f, 0.0f)); // coral is now higher
@@ -238,10 +239,71 @@ int main() {
         glDeleteBuffers(1, &waterVBO);
         glDeleteBuffers(1, &waterEBO);
 
+          //light cube vertices and indices
+        // These vertices define a small cube that will represent the light source in the scene.
+        float lightVertices[] = {
+            // positions          
+            -0.1f, -0.1f, -0.1f,
+            0.1f, -0.1f, -0.1f,
+            0.1f,  0.1f, -0.1f,
+            -0.1f,  0.1f, -0.1f,
+            -0.1f, -0.1f,  0.1f,
+            0.1f, -0.1f,  0.1f,
+            0.1f,  0.1f,  0.1f,
+            -0.1f,  0.1f,  0.1f
+        };
+        unsigned int lightIndices[] = {
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4,
+            0, 1, 5, 5, 4, 0,
+            2, 3, 7, 7, 6, 2,
+            0, 3, 7, 7, 4, 0,
+            1, 2, 6, 6, 5, 1
+        };
+
+        unsigned int lightVAO, lightVBO, lightEBO;
+        glGenVertexArrays(1, &lightVAO);
+        glGenBuffers(1, &lightVBO);
+        glGenBuffers(1, &lightEBO);
+
+        glBindVertexArray(lightVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(lightVertices), lightVertices, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lightEBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(lightIndices), lightIndices, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        lightShader.use();
+        lightShader.setMat4("projection", projection);
+        lightShader.setMat4("view", view);
+
+        // Render light source 1
+        glm::mat4 lightModel1 = glm::mat4(1.0f);
+        lightModel1 = glm::translate(lightModel1, lightPos1); // Position at lightPos1
+        lightModel1 = glm::scale(lightModel1, glm::vec3(0.5f)); // Scale down to make it small
+        lightShader.setMat4("model", lightModel1);
+        lightShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // Bright white color
+
+        glBindVertexArray(lightVAO);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+        // Render light source 2
+        glm::mat4 lightModel2 = glm::mat4(1.0f);
+        lightModel2 = glm::translate(lightModel2, lightPos2); // Position at lightPos2
+        lightModel2 = glm::scale(lightModel2, glm::vec3(0.5f)); // Scale down to make it small
+        lightShader.setMat4("model", lightModel2);
+        lightShader.setVec3("lightColor", glm::vec3(0.5f, 0.5f, 1.0f)); // Slightly blue color
+
+        glBindVertexArray(lightVAO);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
         // Swap buffers and poll IO events
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
     
     glfwTerminate();
     return 0;
