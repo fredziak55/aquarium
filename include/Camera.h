@@ -10,7 +10,6 @@ const int BACKWARD = 1;
 const int LEFT = 2;
 const int RIGHT = 3;
 
-
 class Camera {
 public:
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), 
@@ -40,6 +39,11 @@ public:
     
 private:
     void updateCameraVectors();
+
+    // New members for smoothing mouse movement
+    float smoothedXOffset = 0.0f;
+    float smoothedYOffset = 0.0f;
+    float smoothingFactor = 0.1f; // Adjust between 0 (no smoothing) and 1 (full smoothing)
 };
 
 #endif
