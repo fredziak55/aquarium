@@ -241,28 +241,7 @@ int main() {
         // shader.setMat4("model", model);
         // rock.Draw(shader);
         
-        // Define full-screen quad vertices in NDC and their UV coordinates
-                // Draw water surface in background
-        waterShader.use();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, waterTexture);
-        waterShader.setInt("waterTexture", 0);
-        waterShader.setMat4("projection", projection);
-        waterShader.setMat4("view", view);
-        waterShader.setVec3("cameraPos", camera.Position);
-        waterShader.setVec3("lightPos1", lightPos1);
-        waterShader.setVec3("lightPos2", lightPos2);
-
-        // Position the water as a distant vertical plane
-        glm::mat4 waterModel = glm::mat4(1.0f);
-        waterModel = glm::translate(waterModel, glm::vec3(0.0f, 0.0f, -20.0f)); // Move far back
-        waterModel = glm::scale(waterModel, glm::vec3(30.0f, 20.0f, 1.0f));    // Make it large (width, height, depth)
-        waterModel = glm::rotate(waterModel, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // No rotation (facing camera)
-
-        waterShader.setMat4("model", waterModel);
-        waterShader.setFloat("time", currentFrame);
-
-        // Simple quad vertices (x, y, z, u, v)
+         // Simple quad vertices (x, y, z, u, v)
         float vertices[] = {
             -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
@@ -292,6 +271,63 @@ int main() {
         // Texture coord attribute
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+        // Define full-screen quad vertices in NDC and their UV coordinates
+                // Draw water surface in background
+        waterShader.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, waterTexture);
+        waterShader.setInt("waterTexture", 0);
+        waterShader.setMat4("projection", projection);
+        waterShader.setMat4("view", view);
+        waterShader.setVec3("cameraPos", camera.Position);
+        waterShader.setVec3("lightPos1", lightPos1);
+        waterShader.setVec3("lightPos2", lightPos2);
+
+        // Back wall
+        glm::mat4 waterModel = glm::mat4(1.0f);
+        waterModel = glm::translate(waterModel, glm::vec3(0.0f, 0.0f, -20.0f)); // Move far back
+        waterModel = glm::scale(waterModel, glm::vec3(30.0f, 20.0f, 1.0f));    // Make it large (width, height, depth)
+        waterShader.setMat4("model", waterModel);
+        waterShader.setFloat("time", currentFrame);
+        glBindVertexArray(waterVAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // Left wall
+        waterModel = glm::mat4(1.0f);
+        waterModel = glm::translate(waterModel, glm::vec3(-20.0f, 0.0f, 0.0f)); // Move to the left
+        waterModel = glm::rotate(waterModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate to face right
+        waterModel = glm::scale(waterModel, glm::vec3(30.0f, 20.0f, 1.0f));    // Make it large
+        waterShader.setMat4("model", waterModel);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // Right wall
+        waterModel = glm::mat4(1.0f);
+        waterModel = glm::translate(waterModel, glm::vec3(20.0f, 0.0f, 0.0f)); // Move to the right
+        waterModel = glm::rotate(waterModel, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate to face left
+        waterModel = glm::scale(waterModel, glm::vec3(30.0f, 20.0f, 1.0f));    // Make it large
+        waterShader.setMat4("model", waterModel);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // Ceiling
+        waterModel = glm::mat4(1.0f);
+        waterModel = glm::translate(waterModel, glm::vec3(0.0f, 20.0f, 0.0f)); // Move to the top
+        waterModel = glm::rotate(waterModel, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate to face downward
+        waterModel = glm::scale(waterModel, glm::vec3(30.0f, 30.0f, 1.0f));    // Make it large
+        waterShader.setMat4("model", waterModel);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        waterModel = glm::mat4(1.0f);
+        waterModel = glm::translate(waterModel, glm::vec3(0.0f, 0.0f, 20.0f)); // Move in front of the camera
+        waterModel = glm::scale(waterModel, glm::vec3(30.0f, 20.0f, 1.0f));    // Make it large (width, height, depth)
+        waterShader.setMat4("model", waterModel);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        waterShader.setMat4("model", waterModel);
+        waterShader.setFloat("time", currentFrame);
+
+        glBindVertexArray(0);
+
+       
 
         // Draw the water quad
         glBindVertexArray(waterVAO);
