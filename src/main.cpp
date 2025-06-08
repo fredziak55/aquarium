@@ -78,16 +78,18 @@ int main() {
     std::vector<Fish> fishes;
     fishes.emplace_back("resources/models/fish.obj", glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(0.5f, 0.0f, 0.5f), 0.5f);
     fishes.emplace_back("resources/models/fish.obj", glm::vec3(-1.0f, 3.2f, -1.0f), glm::vec3(-0.3f, 0.1f, -0.2f), 0.3f);
-    fishes.emplace_back("resources/models/fish.obj", glm::vec3(0.0f, 3.5f, 0.0f), glm::vec3(0.2f, -0.1f, 0.4f), 0.4f);
+    fishes.emplace_back("resources/models/fish.obj", glm::vec3(0.0f, 3.5f, 0.0f), glm::vec3(0.2f, -0.1f, 0.3f), 0.4f);
+    fishes.emplace_back("resources/models/fish.obj", glm::vec3(0.0f, 3.7f, 2.0f), glm::vec3(-0.2f, -0.1f, -0.4f), 0.45f);
+    fishes.emplace_back("resources/models/fish.obj", glm::vec3(0.0f, 4.0f, -2.0f), glm::vec3(0.1f, 0.1f, 0.4f), 1.0f);
 
     std::vector<Plant> plants;
     // Shift plant positions further away from coral.
     // Coral is drawn at (-1.0f, -0.5f, 0.0f) so we can move plants farther out.
     // Make sure the new positions still lie within your tank boundaries.
-    plants.emplace_back("resources/models/plant.obj", glm::vec3(-1.5f, -1.0f, -2.0f));
-    plants.emplace_back("resources/models/plant.obj", glm::vec3(1.5f, -1.0f, -2.0f));
-    plants.emplace_back("resources/models/plant.obj", glm::vec3(-1.5f, -1.0f, 2.0f));
-    plants.emplace_back("resources/models/plant.obj", glm::vec3(1.5f, -1.0f, 2.0f));
+    plants.emplace_back("resources/models/plant.obj", glm::vec3(-3.5f, -1.0f, -3.0f));
+    plants.emplace_back("resources/models/plant.obj", glm::vec3(3.5f, -1.0f, -3.0f));
+    plants.emplace_back("resources/models/plant.obj", glm::vec3(-3.5f, -1.0f, 3.0f));
+    plants.emplace_back("resources/models/plant.obj", glm::vec3(3.5f, -1.0f, 3.0f));
         
     Model coral("resources/models/coral.obj");
     Model rock("resources/models/rock.obj");
@@ -166,14 +168,31 @@ int main() {
 
         float swayAngle = sin(currentFrame * 0.5f) * 5.0f; // 5 degrees max sway
 
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-1.0f, -0.5f, 0.0f)); // base position
-        model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
-        // Add the sway rotation; adjust axis/vector based on desired effect
-        model = glm::rotate(model, glm::radians(swayAngle), glm::vec3(0.0f, 1.0f, 0.0f)); 
-        model = glm::scale(model, glm::vec3(0.05f));
-        shader.setMat4("model", model);
-        coral.Draw(shader);
+        // glm::mat4 model = glm::mat4(1.0f);
+        // model = glm::translate(model, glm::vec3(-1.0f, -0.5f, 0.0f)); // base position
+        // model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+        // // Add the sway rotation; adjust axis/vector based on desired effect
+        // model = glm::rotate(model, glm::radians(swayAngle), glm::vec3(0.0f, 1.0f, 0.0f)); 
+        // model = glm::scale(model, glm::vec3(0.05f));
+        // shader.setMat4("model", model);
+        // coral.Draw(shader);
+
+        std::vector<glm::vec3> coralPositions = {
+            glm::vec3(-1.0f, -0.5f, 0.0f),
+            glm::vec3(2.0f, -0.5f, -1.0f),
+            glm::vec3(-2.0f, -0.5f, 1.0f),
+            glm::vec3(0.0f, -0.5f, 2.0f)
+        };
+
+        for (const auto& position : coralPositions) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, position);
+            model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(swayAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::scale(model, glm::vec3(0.05f));
+            shader.setMat4("model", model);
+            coral.Draw(shader);
+        }
         
         // model = glm::mat4(1.0f);
         // model = glm::translate(model, glm::vec3(1.0f, -1.0f, 0.0f));
