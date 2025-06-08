@@ -155,9 +155,20 @@ int main() {
         }
         
         // Draw static objects
+        // glm::mat4 model = glm::mat4(1.0f);
+        // model = glm::translate(model, glm::vec3(-1.0f, -0.5f, 0.0f)); // coral is now higher
+        // model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+        // model = glm::scale(model, glm::vec3(0.05f));
+        // shader.setMat4("model", model);
+        // coral.Draw(shader);
+
+        float swayAngle = sin(currentFrame * 0.5f) * 5.0f; // 5 degrees max sway
+
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-1.0f, -0.5f, 0.0f)); // coral is now higher
+        model = glm::translate(model, glm::vec3(-1.0f, -0.5f, 0.0f)); // base position
         model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+        // Add the sway rotation; adjust axis/vector based on desired effect
+        model = glm::rotate(model, glm::radians(swayAngle), glm::vec3(0.0f, 1.0f, 0.0f)); 
         model = glm::scale(model, glm::vec3(0.05f));
         shader.setMat4("model", model);
         coral.Draw(shader);
