@@ -179,15 +179,65 @@ int main() {
         // shader.setMat4("model", model);
         // rock.Draw(shader);
         
-        // Draw water surface
+        // Define full-screen quad vertices in NDC and their UV coordinates
+                // Draw water surface in background
         waterShader.use();
         waterShader.setMat4("projection", projection);
         waterShader.setMat4("view", view);
         waterShader.setVec3("cameraPos", camera.Position);
         waterShader.setVec3("lightPos1", lightPos1);
         waterShader.setVec3("lightPos2", lightPos2);
-        water.Draw(waterShader, currentFrame);
-        
+
+        // Position the water as a distant vertical plane
+        glm::mat4 waterModel = glm::mat4(1.0f);
+        waterModel = glm::translate(waterModel, glm::vec3(0.0f, 0.0f, -20.0f)); // Move far back
+        waterModel = glm::scale(waterModel, glm::vec3(30.0f, 20.0f, 1.0f));    // Make it large (width, height, depth)
+        waterModel = glm::rotate(waterModel, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // No rotation (facing camera)
+
+        waterShader.setMat4("model", waterModel);
+        waterShader.setFloat("time", currentFrame);
+
+        // Simple quad vertices (x, y, z, u, v)
+        float vertices[] = {
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
+        };
+        unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+        };
+
+        // Set up VAO/VBO/EBO for the water quad
+        unsigned int waterVAO, waterVBO, waterEBO;
+        glGenVertexArrays(1, &waterVAO);
+        glGenBuffers(1, &waterVBO);
+        glGenBuffers(1, &waterEBO);
+
+        glBindVertexArray(waterVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, waterVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, waterEBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        // Position attribute
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        // Texture coord attribute
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        // Draw the water quad
+        glBindVertexArray(waterVAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+        // Clean up
+        glDeleteVertexArrays(1, &waterVAO);
+        glDeleteBuffers(1, &waterVBO);
+        glDeleteBuffers(1, &waterEBO);
+
         // Swap buffers and poll IO events
         glfwSwapBuffers(window);
         glfwPollEvents();
