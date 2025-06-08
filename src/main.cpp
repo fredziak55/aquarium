@@ -242,10 +242,10 @@ int main() {
 
         float sandVertices[] = {
             // positions          // texture coords
-            -6.0f, -1.0f, -6.0f,   0.0f, 0.0f,  // Bottom-left corner
-            6.0f, -1.0f, -6.0f,   1.0f, 0.0f,  // Bottom-right corner
-            6.0f, -1.0f,  6.0f,   1.0f, 1.0f,  // Top-right corner
-            -6.0f, -1.0f,  6.0f,   0.0f, 1.0f   // Top-left corner
+            -20.0f, -1.0f, -20.0f,   0.0f, 0.0f,  // Bottom-left corner
+            20.0f, -1.0f, -20.0f,   1.0f, 0.0f,  // Bottom-right corner
+            20.0f, -1.0f,  20.0f,   1.0f, 1.0f,  // Top-right corner
+            -20.0f, -1.0f,  20.0f,   0.0f, 1.0f   // Top-left corner
         };
         unsigned int sandIndices[] = {
             0, 1, 2,
