@@ -219,10 +219,10 @@ int main() {
         // coral.Draw(shader);
 
         std::vector<glm::vec3> coralPositions = {
-            glm::vec3(-1.0f, -0.5f, 0.0f),
+            glm::vec3(-3.0f, -0.5f, 0.0f),
             glm::vec3(2.0f, -0.5f, -1.0f),
-            glm::vec3(-2.0f, -0.5f, 1.0f),
-            glm::vec3(0.0f, -0.5f, 2.0f)
+            glm::vec3(-1.0f, -0.5f, 3.0f),
+            glm::vec3(0.0f, -0.5f, 1.0f)
         };
 
         for (const auto& position : coralPositions) {
